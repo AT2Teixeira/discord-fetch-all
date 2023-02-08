@@ -4,13 +4,19 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.default = async (channel, options = { reverseArray: false, userOnly: false, botOnly: false, pinnedOnly: false }) => {
     // if (!(channel instanceof discord_js_1.TextChannel)) {throw new Error('discord-fetch-all: channel parameter is not a instance of a discord channel.');}
     const { reverseArray, userOnly, botOnly, pinnedOnly } = options;
+    const RateLimiter = require('bottleneck');
+    const limiter = new RateLimiter({
+        maxConcurrent: 2, // número máximo de solicitações por intervalo de tempo
+        minTime: 5000 // intervalo de tempo em milissegundos
+      });
+
     let messages = [];
     let lastID;
     while (true) { // eslint-disable-line no-constant-condition
-        const fetchedMessages = await channel.messages.fetch({
+        const fetchedMessages = await limiter.schedule(() => channel.messages.fetch({
             limit: 100,
             ...(lastID && { before: lastID }),
-        });
+        }));
         if (fetchedMessages.size === 0) {
             if (reverseArray) {messages = messages.reverse();}
             if (userOnly) {messages = messages.filter(msg => !msg.author.bot);}
