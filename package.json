@@ -30,6 +30,7 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "discord.js": "^12.4.1"
+    "discord.js": "^14.7.1",
+    "bottleneck": "^2.19.5"
   }
 }
